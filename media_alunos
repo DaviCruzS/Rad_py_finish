@@ -19,8 +19,6 @@ class Aluno():
             print("Aluno reprovado", media)
 
 aluno = Aluno("Davi")
-print(aluno.notas)
 aluno.notaProva()
-print()
 print("As notas são", aluno.notasAlunos)
 aluno.verificarMedia()
