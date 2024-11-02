@@ -33,11 +33,9 @@ class PrincipalBD():
         self.botaoEditar = tk.Button(self.frame_esquerda_cima, text="Listar", command=self.AbrirEdicao)
         self.botaoEditar.grid(row=3, column=0)
 
-        self.textoFiltrar = tk.Label(self.frame_esquerda_baixo, text='Pesquisar por ID',bg="#4169E1")
+        self.textoFiltrar = tk.Label(self.frame_esquerda_baixo, text='Filtrar por',bg="#4169E1")
         self.textoFiltrar.grid(row=4,column=0,pady=5)
-        self.id_missao = tk.Entry(self.frame_esquerda_baixo,)
-        self.id_missao.grid(row=5,column=0)
-        self.botaoFiltrar = tk.Button(self.frame_esquerda_baixo, text="Pesquisar", command=self.AbrirFiltro)
+        self.botaoFiltrar = tk.Button(self.frame_esquerda_baixo, text="Filtrar", command=self.AbrirFiltro)
         self.botaoFiltrar.grid(row=6, column=0)
 
     def ExibirTela(self):
@@ -49,80 +47,32 @@ class PrincipalBD():
         except Exception as erro:
             print(erro)
 
-    def ExibirTelaFiltro(self,id_missao):
+    def ExibirTelaFiltro(self):
+        viagens=[]
+        inicio = self.entrydata_inicio.get()
+        fim = self.entrydata_fim.get()
+        print(f"{inicio},{fim}")
         try:
             self.treeMissoes.delete(*self.treeMissoes.get_children()) 
-            viagens = self.objBD.select_missoes_filtradas(id_missao)
+            viagens = self.objBD.select_intervalo(inicio,fim)
+            for viagem in viagens:
+                self.treeMissoes.insert("", tk.END, values=viagem)
+        except Exception as erro:
+            print(erro)
+    
+    def ExibirFiltroId(self):
+        viagens=[]
+        filtro_id = self.entryFiltroId.get()
+        try:
+            self.treeMissoes.delete(*self.treeMissoes.get_children()) 
+            viagens = self.objBD.select_filtro_id(filtro_id)
             for viagem in viagens:
                 self.treeMissoes.insert("", tk.END, values=viagem)
         except Exception as erro:
             print(erro)
 
-    def AbrirFormulario(self):
-        self.lista_estados = ["Ativa","Concluída","Abortada"]
-        try: 
-            formulario = tk.Toplevel()
-            formulario.title("Adicionar missao")
-            formulario.geometry("950x250")
-        
-            self.nome = tk.Label(formulario, text="Nome da missão:")
-            self.nome.grid(row=0 ,column=0,pady=10, sticky="w")
-            self.entrynome = tk.Entry(formulario)
-            self.entrynome.grid(row= 0,column=1,pady=10,padx=5, sticky="w")
-
-            self.lancamento = tk.Label(formulario, text="Data de lançamento: ")
-            self.lancamento.grid(row=0 ,column=2,pady=10,padx=5,sticky="w")
-            self.entrylancamento = DateEntry(formulario,date_pattern="yyyy/mm/dd")
-            self.entrylancamento.grid(row= 0,column=3,pady=10, sticky="w")
-
-            self.destino = tk.Label(formulario, text="Destino: ")
-            self.destino.grid(row= 1,column=0,pady=10, sticky="w")
-            self.entrydestino = tk.Entry(formulario)
-            self.entrydestino.grid(row=1 ,column=1,pady=10,padx=5, sticky="w")
-
-            self.estado = tk.Label(formulario, text="Estado da missão: ")
-            self.estado.grid(row= 1,column=2,pady=10,padx=5, sticky="w")
-            self.entryestado = ttk.Combobox(formulario, values= self.lista_estados)
-            self.entryestado.set("Selecionar")
-            self.entryestado.grid(row=1,column=3, pady = 5, sticky="w")
-
-            self.tripulacao = tk.Label(formulario, text="Tripulação: ")
-            self.tripulacao.grid(row= 2,column=0,pady=10, sticky="w")
-            self.entrytripulacao = tk.Entry(formulario)
-            self.entrytripulacao.grid(row= 2,column=1,pady=10,padx=5, sticky="w")
-
-            self.carga = tk.Label(formulario, text="Carga: ")
-            self.carga.grid(row= 2,column=2,pady=10,padx=5, sticky="w")
-            self.entrycarga = tk.Entry(formulario)
-            self.entrycarga.grid(row= 2,column=3,pady=10, sticky="w")
-
-            self.duracao = tk.Label(formulario, text="Duração da missão: ")
-            self.duracao.grid(row= 3,column=0,pady=10, sticky="w")
-            self.entryduracao = tk.Entry(formulario)
-            self.entryduracao.grid(row= 3,column=1,pady=10,padx=5, sticky="w")
-
-            self.custo = tk.Label(formulario, text="Custo:")
-            self.custo.grid(row= 3,column=2,pady=10,padx=5, sticky="w")
-            self.entrycusto = tk.Entry(formulario)
-            self.entrycusto.grid(row= 3,column=3,pady=10, sticky="w")
-
-            self.status = tk.Label(formulario, text="Status da missão: ")
-            self.status.grid(row= 4,column=0,pady=10, sticky="w")
-            self.entrystatus = tk.Entry(formulario)
-            self.entrystatus.grid(row= 4,column=1,pady=10,padx=5, sticky="w")
-
-            self.botaoAdicionar = tk.Button(formulario, text="Adicionar missão", command= self.AdicionarMissao)
-            self.botaoAdicionar.grid(row= 4,column=3)
-
-        except Exception as erro:
-            print(erro)
-
-    def AbrirEdicao(self):
-        edicao = tk.Toplevel() 
-        edicao.title("Edição de missões")
-        edicao.geometry("950x550")
-
-        self.treeMissoes = ttk.Treeview(edicao, columns=("id","nomemissao","lancamento","destino","estado","tripulacao","carga","duracao","custo","status"), show="headings")
+    def Exibicao(self, janela):
+        self.treeMissoes = ttk.Treeview(janela, columns=("id","nomemissao","lancamento","destino","estado","tripulacao","carga","duracao","custo","status"), show="headings")
         self.treeMissoes.column('id',width=30)
         self.treeMissoes.column('nomemissao',width=120)
         self.treeMissoes.column('lancamento',width=90)
@@ -133,6 +83,7 @@ class PrincipalBD():
         self.treeMissoes.column('duracao',width=70)
         self.treeMissoes.column('custo',width=70)
         self.treeMissoes.column('status',width=100)
+
         self.treeMissoes.heading("id", text="ID ")
         self.treeMissoes.heading("nomemissao", text="Nome da Missão")
         self.treeMissoes.heading("lancamento",text= "lançamento")
@@ -144,60 +95,87 @@ class PrincipalBD():
         self.treeMissoes.heading("custo",text="Custo")
         self.treeMissoes.heading("status",text="Status")
         self.treeMissoes.grid(row=0,column=0,columnspan=4,padx=10,pady=10)
-        self.ExibirTela()
+
+    def Formulario(self, janela):
+        self.janela = janela
         self.lista_estados = ["Ativa","Concluída","Abortada"]
-        
         try: 
-            self.nome = tk.Label(edicao, text="Nome da missão:")
-            self.nome.grid(row=1 ,column=0,pady=10, sticky="e")
-            self.entrynome = tk.Entry(edicao)
+            self.nome = tk.Label(janela, text="Nome da missão:")
+            self.nome.grid(row=1 ,column=0,pady=10, sticky="w")
+            self.entrynome = tk.Entry(janela)
             self.entrynome.grid(row= 1,column=1,pady=10,padx=5, sticky="w")
-
-            self.lancamento = tk.Label(edicao, text="Data de lançamento: ")
-            self.lancamento.grid(row=1 ,column=2,pady=10,padx=5,sticky="e")
-            self.entrylancamento = DateEntry(edicao,date_pattern="yyyy/mm/dd")
+            
+            self.lancamento = tk.Label(janela, text="Data de lançamento: ")
+            self.lancamento.grid(row=1 ,column=2,pady=10,padx=5,sticky="w")
+            self.entrylancamento = DateEntry(janela,date_pattern="yyyy/mm/dd")
             self.entrylancamento.grid(row= 1,column=3,pady=10, sticky="w")
-
-            self.destino = tk.Label(edicao, text="Destino: ")
-            self.destino.grid(row= 2,column=0,pady=10, sticky="e")
-            self.entrydestino = tk.Entry(edicao)
+            
+            self.destino = tk.Label(janela, text="Destino: ")
+            self.destino.grid(row= 2,column=0,pady=10, sticky="w")
+            self.entrydestino = tk.Entry(janela)
             self.entrydestino.grid(row=2 ,column=1,pady=10,padx=5, sticky="w")
 
-            self.estado = tk.Label(edicao, text="Estado da missão: ")
-            self.estado.grid(row= 2,column=2,pady=10,padx=5, sticky="e")
-            self.entryestado = ttk.Combobox(edicao, values= self.lista_estados)
+            self.estado = tk.Label(janela, text="Estado da missão: ")
+            self.estado.grid(row= 2,column=2,pady=10,padx=5, sticky="w")
+            self.entryestado = ttk.Combobox(janela, values= self.lista_estados)
             self.entryestado.set("Selecionar")
             self.entryestado.grid(row=2,column=3, pady = 5, sticky="w")
 
-            self.tripulacao = tk.Label(edicao, text="Tripulação: ")
-            self.tripulacao.grid(row= 3,column=0,pady=10, sticky="e")
-            self.entrytripulacao = tk.Entry(edicao)
+            self.tripulacao = tk.Label(janela, text="Tripulação: ")
+            self.tripulacao.grid(row= 3,column=0,pady=10, sticky="w")
+            self.entrytripulacao = tk.Entry(janela)
             self.entrytripulacao.grid(row= 3,column=1,pady=10,padx=5, sticky="w")
 
-            self.carga = tk.Label(edicao, text="Carga: ")
-            self.carga.grid(row= 3,column=2,pady=10,padx=5, sticky="e")
-            self.entrycarga = tk.Entry(edicao)
+            self.carga = tk.Label(janela, text="Carga: ")
+            self.carga.grid(row= 3,column=2,pady=10,padx=5, sticky="w")
+            self.entrycarga = tk.Entry(janela)
             self.entrycarga.grid(row= 3,column=3,pady=10, sticky="w")
 
-            self.duracao = tk.Label(edicao, text="Duração da missão: ")
-            self.duracao.grid(row= 4,column=0,pady=10, sticky="e")
-            self.entryduracao = tk.Entry(edicao)
+            self.duracao = tk.Label(janela, text="Duração da missão: ")
+            self.duracao.grid(row= 4,column=0,pady=10, sticky="w")
+            self.entryduracao = tk.Entry(janela)
             self.entryduracao.grid(row= 4,column=1,pady=10,padx=5, sticky="w")
 
-            self.custo = tk.Label(edicao, text="Custo:")
-            self.custo.grid(row= 4,column=2,pady=10,padx=5, sticky="e")
-            self.entrycusto = tk.Entry(edicao)
+            self.custo = tk.Label(janela, text="Custo:")
+            self.custo.grid(row= 4,column=2,pady=10,padx=5, sticky="w")
+            self.entrycusto = tk.Entry(janela)
             self.entrycusto.grid(row= 4,column=3,pady=10, sticky="w")
 
-            self.status = tk.Label(edicao, text="Status da missão: ")
-            self.status.grid(row= 5,column=0,pady=10, sticky="e")
-            self.entrystatus = tk.Entry(edicao)
+            self.status = tk.Label(janela, text="Status da missão: ")
+            self.status.grid(row= 5,column=0,pady=10, sticky="w")
+            self.entrystatus = tk.Entry(janela)
             self.entrystatus.grid(row= 5,column=1,pady=10,padx=5, sticky="w")
+        except Exception as erro:
+                print(erro)
 
-            self.botaoEditar = tk.Button(edicao, text="Editar missão", command= self.AtualizarMissao)
-            self.botaoEditar.grid(row= 5,column=2,padx=10,sticky="e")
-            self.botaoexcluir = tk.Button(edicao, text="Excluir missão", command= self.ExcluirMissao)
-            self.botaoexcluir.grid(row= 5,column=3,padx=10,sticky="w")
+    def AbrirFormulario(self):
+        try: 
+            formulario = tk.Toplevel()
+            formulario.title("Adicionar missao")
+            formulario.geometry("950x250")
+        
+            self.Formulario(formulario)
+
+            self.botaoAdicionar = tk.Button(formulario, text="Adicionar missão", command= self.AdicionarMissao)
+            self.botaoAdicionar.grid(row= 5,column=3)
+
+        except Exception as erro:
+            print(erro)
+
+    def AbrirEdicao(self):
+        try: 
+            edicao = tk.Toplevel() 
+            edicao.title("Edição de missões")
+            edicao.geometry("950x550")
+            
+            self.Exibicao(edicao)
+            self.ExibirTela()
+            self.Formulario(edicao)
+
+            self.botaoEditar = tk.Button(edicao, text="Adicionar missão", command= self.AtualizarMissao)
+            self.botaoEditar.grid(row= 6,column=1)
+            self.botaoExcluir = tk.Button(edicao, text="Excluir Missão", command= self.ExcluirMissao)
+            self.botaoExcluir.grid(row= 6,column=2)
 
         except Exception as erro:
             print(erro)
@@ -205,34 +183,57 @@ class PrincipalBD():
     def AbrirFiltro(self):
         janela_filtro = tk.Toplevel() 
         janela_filtro.title("Detalhes da missão: ")
-        janela_filtro.geometry("950x550")
+        janela_filtro.geometry("950x250")
 
-        self.ExibirTelaFiltro(self.id_missao)
+        try:
+            self.lancamento = tk.Label(janela_filtro, text="Data inicial: ")
+            self.lancamento.grid(row=0 ,column=0,padx=5,pady=5)
+            self.entrydata_inicio = DateEntry(janela_filtro,date_pattern="yyyy-mm-dd")
+            self.entrydata_inicio.grid(row= 0,column=1,padx=5,pady=5)
+
+            self.lancamento = tk.Label(janela_filtro, text="Data final: ")
+            self.lancamento.grid(row=1 ,column=0,padx=5,pady=5)
+            self.entrydata_fim = DateEntry(janela_filtro,date_pattern="yyyy-mm-dd")
+            self.entrydata_fim.grid(row= 1,column=1,padx=5,pady=5)
+
+            self.botaomostrarFiltro = tk.Button(janela_filtro,text="Filtrar por data",command=self.ExibirFiltro)
+            self.botaomostrarFiltro.grid(row=0,column=3,rowspan=2,padx=5,pady=5)
+
+            self.textoFiltroId = tk.Label(janela_filtro,text="Id da missão")
+            self.textoFiltroId.grid(row=3 ,column=0,padx=5,pady=5)
+            self.entryFiltroId = tk.Entry(janela_filtro)
+            self.entryFiltroId.grid(row= 3,column=1,padx=5,pady=5,)
+            
+            self.botaoMostrarMissaoId = tk.Button(janela_filtro,text="Filtrar por ID",command=self.ExibirMissaoId)
+            self.botaoMostrarMissaoId.grid(row=3,column=3,padx=5,pady=5)
+
+        except Exception as erro:
+            print( "erro",erro)
+
+    def ExibirFiltro(self):
+        mostrar_intervalo = tk.Toplevel() 
+        mostrar_intervalo.title("Missão por data: ")
+        mostrar_intervalo.geometry("950x250")
+
+        try:
+            self.Exibicao(mostrar_intervalo)
+            self.ExibirTelaFiltro()
         
-        self.treeMissoes = ttk.Treeview(janela_filtro, columns=("id","nomemissao","lancamento","destino","estado","tripulacao","carga","duracao","custo","status"), show="headings")
-        
-        self.treeMissoes.column('id',width=30)
-        self.treeMissoes.column('nomemissao',width=120)
-        self.treeMissoes.column('lancamento',width=90)
-        self.treeMissoes.column('destino',width=70)
-        self.treeMissoes.column('estado',width=70)
-        self.treeMissoes.column('tripulacao',width=100)
-        self.treeMissoes.column('carga',width=100)
-        self.treeMissoes.column('duracao',width=70)
-        self.treeMissoes.column('custo',width=70)
-        self.treeMissoes.column('status',width=100)
-        self.treeMissoes.heading("id", text="ID ")
-        self.treeMissoes.heading("nomemissao", text="Nome da Missão")
-        self.treeMissoes.heading("lancamento",text= "lançamento")
-        self.treeMissoes.heading("destino",text= "Destino")
-        self.treeMissoes.heading("estado",text= "Estado")
-        self.treeMissoes.heading("tripulacao",text="Tripulação")
-        self.treeMissoes.heading("carga",text="Carga")
-        self.treeMissoes.heading("duracao",text="Duração")
-        self.treeMissoes.heading("custo",text="Custo")
-        self.treeMissoes.heading("status",text="Status")
-        self.treeMissoes.grid(row=0,column=0,columnspan=4,padx=10,pady=10)
-        
+        except Exception as erro:
+            print(erro)
+
+    def ExibirMissaoId(self):
+        janela_missao_id = tk.Toplevel() 
+        janela_missao_id.title("Missão por data: ")
+        janela_missao_id.geometry("950x250")
+
+        try:
+            self.Exibicao(janela_missao_id)
+            self.ExibirFiltroId()
+            
+        except Exception as erro:
+            print(erro)
+
     def AdicionarMissao(self):
         try:
             nome = self.entrynome.get()
@@ -257,7 +258,6 @@ class PrincipalBD():
             self.entrycusto.delete(0, tk.END)
             self.entrystatus.delete(0,tk.END)
 
-            self.ExibirTela()
             print('Missão cadastrado com sucesso')
         except Exception as erro:
             print(erro)
@@ -305,15 +305,9 @@ class PrincipalBD():
             missao_id = missao[0]
             self.objBD.delete_missoes(missao_id)
             self.ExibirTela()
-            print("A missão foi excluida!")
         except Exception as erro:
             print(erro)
 
-        except Exception as erro:
-            print(erro)
-
-        except Exception as erro:
-            print(erro)
     
 janela = tk.Tk()
 app_missao = PrincipalBD(janela)
