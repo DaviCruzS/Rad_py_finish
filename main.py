@@ -63,6 +63,39 @@ class Missao():
                 cursor.close()
                 self.connection.close()
         return viagens 
+    
+    def select_filtro_id(self,filtro_id):
+        viagens = []
+        self.abrirConexao()
+        filtro_id_query = "SELECT * FROM missoes WHERE id=?"
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(filtro_id_query,(filtro_id,))
+            viagens = cursor.fetchall()
+        except sqlite3.Error as error:
+            print("Falha ao retornar missões", error)
+        finally:
+            if self.connection:
+                cursor.close()
+                self.connection.close()
+        return viagens 
+    
+    def select_intervalo(self,data_inicio,data_fim):
+        viagens=[]
+        self.abrirConexao()
+        intervalo_query = "SELECT * FROM missoes WHERE lancamento BETWEEN ? AND ?"
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(intervalo_query,(data_inicio,data_fim,))
+            viagens = cursor.fetchall()
+
+        except Exception as erro:
+            print("Falha ao retornar",erro)
+        finally:
+            if self.connection:
+                cursor.close()
+                self.connection.close()
+        return viagens
         
     def update_missoes(self,missao_id,nome_missao,lancamento,destino,estado_missao,tripulacao,carga,duracao,custo,status):
         self.abrirConexao()
@@ -71,7 +104,6 @@ class Missao():
             cursor = self.connection.cursor()
             cursor.execute(update_query,(nome_missao,lancamento,destino,estado_missao,tripulacao,carga,duracao,custo,status,missao_id))
             self.connection.commit()
-            print("Missão atualizada")
         except sqlite3.Error as error:
             print("Falha ao atualizar o Missão", error)
         finally:
@@ -86,27 +118,25 @@ class Missao():
             cursor = self.connection.cursor()
             cursor.execute(delete_query, (missao_id,))
             self.connection.commit()
-            print('Missão excluida')
         except sqlite3.Error as error:
             print('Falha ao excluir missão', error)
         finally:
             if self.connection:
                 cursor.close()
                 self.connection.close()
-                print("A conexão com o sqlite foi fechada!")
                 
-    def select_missoes_filtradas(self,id_missao):
-        viagens = []
+    def select_missoes_filtradas(self,filtrar_id):
+        missoes_filtradas = []
         self.abrirConexao()
-        select_query_filtro = "SELECT * FROM missoes WHERE id =?"
+        select_query_filtro = "SELECT * FROM missoes WHERE id = ?"
         try:
             cursor = self.connection.cursor()
-            cursor.execute(select_query_filtro,(id_missao))
-            viagens = cursor.fetchall()
+            cursor.execute(select_query_filtro,(filtrar_id))
+            missoes_filtradas = cursor.fetchall()
         except sqlite3.Error as error:
             print("Falha ao retornar missões", error)
         finally:
             if self.connection:
                 cursor.close()
                 self.connection.close()
-        return viagens 
+        return missoes_filtradas 
