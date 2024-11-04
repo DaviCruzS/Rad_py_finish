@@ -166,16 +166,23 @@ class PrincipalBD():
         try: 
             edicao = tk.Toplevel() 
             edicao.title("Edição de missões")
-            edicao.geometry("950x550")
+            edicao.geometry("1100x550")
             
             self.Exibicao(edicao)
             self.ExibirTela()
             self.Formulario(edicao)
 
-            self.botaoEditar = tk.Button(edicao, text="Adicionar missão", command= self.AtualizarMissao)
+            self.botaoEditar = tk.Button(edicao, text="Atualizar missão", command= self.AtualizarMissao)
             self.botaoEditar.grid(row= 6,column=1)
             self.botaoExcluir = tk.Button(edicao, text="Excluir Missão", command= self.ExcluirMissao)
             self.botaoExcluir.grid(row= 6,column=2)
+
+            self.textoTutorial1 = tk.Label(edicao, text="1 - Selecione a missão que deseja")
+            self.textoTutorial1.grid(row=0, column= 6,sticky="w")
+            self.textoTutorial2 = tk.Label(edicao, text ="2 - Preencha os campos")
+            self.textoTutorial2.grid(row=3, column= 6,sticky='w')
+            self.textoTutorial3 = tk.Label(edicao, text="3 - Clique em Atualizar ou Excluir missão")
+            self.textoTutorial3.grid(row=6, column= 6,sticky="sw")
 
         except Exception as erro:
             print(erro)
@@ -224,7 +231,7 @@ class PrincipalBD():
 
     def ExibirMissaoId(self):
         janela_missao_id = tk.Toplevel() 
-        janela_missao_id.title("Missão por data: ")
+        janela_missao_id.title("Missão por Id: ")
         janela_missao_id.geometry("950x250")
 
         try:
